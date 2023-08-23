@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=2001
+
 reset='\e[0m'
 red='\e[31m'
 background_red='\e[41m'
