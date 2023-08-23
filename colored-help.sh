@@ -15,6 +15,7 @@ option_color="$red_color"
 option_description_color="$magenta_color"
 
 valid_options='--help|-h --version|-v --text-color|-t --header-color|-H --option-color|-o --option-description-color|-O --preview|-p --copy|-c --completion|-C --'
+valid_colors='black red green yellow blue magenta cyan light-gray gray light-red light-green light-yellow light-blue light-magenta light-cyan white'
 
 error() {
     e_in_message="$1"
@@ -146,22 +147,26 @@ version() {
 generate_completion() {
   gc_in_shell="$1"
 
+  gc_tool="$(echo "$0" | sed 's|./||')"
+
   error_when_shell_is_not_supported "$gc_in_shell"
 
   case "$gc_in_shell" in
     bash)
-      echo complete -W \'$(echo "$valid_options" | sed 's/|/ /g')\' "$0"
+      echo complete -W \'$(echo "$valid_options" | sed 's/|/ /g')\' "$gc_tool"
       ;;
     fish)
-      echo "complete -c $0 -s h -l help -d \"Print help\"
-complete -c $0 -s v -l version -d \"Print version\"
-complete -c $0 -s t -l text-color -d \"Specify text color\" -r
-complete -c $0 -s H -l header-color -d \"Specify header color\" -r
-complete -c $0 -s o -l option-color -d \"Specify option color\" -r
-complete -c $0 -s O -l option-description-color -d \"Specify option description color\" -r
-complete -c $0 -s p -l preview -d \"Whether to preview generated message\"
-complete -c $0 -s c -l copy -d \"Whether to copy generated function to clipboard\"
-complete -c $0 -s C -l completion -d \"Generate completion for shell\" -r"
+      echo "set colors $valid_colors
+
+complete -c $gc_tool -s h -l help -d \"Print help\"
+complete -c $gc_tool -s v -l version -d \"Print version\"
+complete -c $gc_tool -s t -l text-color -d \"Specify text color\" -x -a '\$colors'
+complete -c $gc_tool -s H -l header-color -d \"Specify header color\" -x -a '\$colors'
+complete -c $gc_tool -s o -l option-color -d \"Specify option color\" -x -a '\$colors'
+complete -c $gc_tool -s O -l option-description-color -d \"Specify option description color\" -x -a '\$colors'
+complete -c $gc_tool -s p -l preview -d \"Whether to preview generated message\"
+complete -c $gc_tool -s c -l copy -d \"Whether to copy generated function to clipboard\"
+complete -c $gc_tool -s C -l completion -d \"Generate completion for shell\" -x -a 'bash fish'"
       ;;
   esac
 
