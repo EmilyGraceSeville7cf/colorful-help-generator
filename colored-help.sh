@@ -155,13 +155,13 @@ generate_completion() {
     fish)
       echo "complete -c $0 -s h -l help -d \"Print help\"
 complete -c $0 -s v -l version -d \"Print version\"
-complete -c $0 -s t -l text-color -d \"Specify text color\"
-complete -c $0 -s H -l header-color -d \"Specify header color\"
-complete -c $0 -s o -l option-color -d \"Specify option color\"
-complete -c $0 -s O -l option-description-color -d \"Specify option description color\"
+complete -c $0 -s t -l text-color -d \"Specify text color\" -r
+complete -c $0 -s H -l header-color -d \"Specify header color\" -r
+complete -c $0 -s o -l option-color -d \"Specify option color\" -r
+complete -c $0 -s O -l option-description-color -d \"Specify option description color\" -r
 complete -c $0 -s p -l preview -d \"Whether to preview generated message\"
 complete -c $0 -s c -l copy -d \"Whether to copy generated function to clipboard\"
-complete -c $0 -s C -l completion -d \"Generate completion for shell\""
+complete -c $0 -s C -l completion -d \"Generate completion for shell\" -r"
       ;;
   esac
 
