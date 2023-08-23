@@ -136,7 +136,7 @@ Options:
   --completion|-C                Generate completion for shell.
 
 Examples:
-  $0 'Snippet generator.' '-h/--help=Print help' '-v/--version=Print version' '-p/--path=Specify path for manually written snippets'"
+  $0 'Snippet generator.' -- '-h/--help=Print help' '-v/--version=Print version' '-p/--path=Specify path for manually written snippets'"
 }
 
 version() {

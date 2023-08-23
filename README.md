@@ -22,7 +22,20 @@ colored-help [--text-color|-t] [--header-color|-H] [--option-color|-o] [--option
 ## Examples
 
 ```bash
-colored-help 'Snippet generator.' '-h/--help=Print help' '-v/--version=Print version' '-p/--path=Specify path for manually written snippets'"
+colored-help 'Snippet generator.' -- '-h/--help=Print help' '-v/--version=Print version' '-p/--path=Specify path for manually written snippets'
+```
+
+Result:
+
+```bash
+help() {
+        echo -e "\e[30mSnippet generator.
+
+\e[36mOptions:
+        \e[31m--help|-h     \e[35mPrint help
+        \e[31m--version|-v  \e[35mPrint version
+        \e[31m--path|-p     \e[35mSpecify path for manually written snippets"
+}
 ```
 
 ## Notes
