@@ -14,6 +14,8 @@ header_color="$cyan_color"
 option_color="$red_color"
 option_description_color="$magenta_color"
 
+valid_options='--help|-h --version|-v --text-color|-t --header-color|-H --option-color|-o --option-description-color|-O --preview|-p --copy|-c --completion|-C --'
+
 error() {
     e_in_message="$1"
     printf "${background_red}error:$reset$red %s$reset" "$e_in_message" >&2
@@ -24,9 +26,7 @@ error_when_option_is_not_supported() {
     ewoins_in_option="$1"
     ewoins_in_previous_option="$2"
 
-    ewoins_valid_options='--help|-h --version|-v --text-color|-t --header-color|-H --option-color|-o --option-description-color|-O --preview|-p --copy|-c --'
-
-    error "'$ewoins_in_option' is not supported (right after '$ewoins_in_previous_option'), expected one of: $ewoins_valid_options"
+    error "'$ewoins_in_option' option is not supported (right after '$ewoins_in_previous_option'), expected one of: $valid_options"
 }
 
 error_when_color_is_not_supported() {
@@ -38,7 +38,7 @@ error_when_color_is_not_supported() {
     [ "$color" = "$ewcins_in_color" ] && return
   done
 
-  error "'$ewcins_in_color' is not supported, expected one of: $ewcins_colors"
+  error "'$ewcins_in_color' is color not supported, expected one of: $ewcins_colors"
 }
 
 error_when_format_is_not_supported() {
@@ -46,7 +46,16 @@ error_when_format_is_not_supported() {
   ewfins_in_previous_format="$2"
 
   [ "" = "$(echo "$ewfins_in_format" | sed -E -n '/^(--?[^-=\/]+|-[^-=\/]+\/--[^=\/]+)=[^=]+$/p')" ] &&
-    error "'$ewfins_in_format' is not supported (right after '$ewfins_in_previous_format'), expected one of: -<short-option>=<description> --<long-option>=<description> -<short-option>/--<long-option>=<description>"
+    error "'$ewfins_in_format' format is not supported (right after '$ewfins_in_previous_format'), expected one of: -<short-option>=<description> --<long-option>=<description> -<short-option>/--<long-option>=<description>"
+}
+
+error_when_shell_is_not_supported() {
+  ewsins_in_option="$1"
+
+  ewsins_valid_options='bash fish'
+
+  [ "" = "$(echo "$ewsins_in_option" | sed -E -n '/^(bash|fish)$/p')" ] &&
+    error "'$ewsins_in_option' shell is not supported, expected one of: $ewsins_valid_options"
 }
 
 # shellcheck disable=SC2028
@@ -111,7 +120,7 @@ help() {
   echo "Colorful help message generator.
 
 Usage:
-  $0 [--help|-h] [--version|-v]
+  $0 [--help|-h] [--version|-v] [--completion|-C <shell>]
   $0 [--text-color|-t] [--header-color|-H] [--option-color|-o] [--option-description-color|-O] [--preview|-p] [--copy|-c] <description> -- (-<short-option>|--<long-option>|-<short-option>/--<long-option>)=<description>...
 
 Options:
@@ -123,6 +132,7 @@ Options:
   --option-description-color|-O  Specify option description color.
   --preview|-p                   Whether to preview generated message.
   --copy|-c                      Whether to copy generated function to clipboard.
+  --completion|-C                Generate completion for shell.
 
 Examples:
   $0 'Snippet generator.' '-h/--help=Print help' '-v/--version=Print version' '-p/--path=Specify path for manually written snippets'"
@@ -132,12 +142,39 @@ version() {
   echo "1.0.0"
 }
 
+# shellcheck disable=SC2317,SC2046
+generate_completion() {
+  gc_in_shell="$1"
+
+  error_when_shell_is_not_supported "$gc_in_shell"
+
+  case "$gc_in_shell" in
+    bash)
+      echo complete -W \'$(echo "$valid_options" | sed 's/|/ /g')\' "$0"
+      ;;
+    fish)
+      echo "complete -c $0 -s h -l help -d \"Print help\"
+complete -c $0 -s v -l version -d \"Print version\"
+complete -c $0 -s t -l text-color -d \"Specify text color\"
+complete -c $0 -s H -l header-color -d \"Specify header color\"
+complete -c $0 -s o -l option-color -d \"Specify option color\"
+complete -c $0 -s O -l option-description-color -d \"Specify option description color\"
+complete -c $0 -s p -l preview -d \"Whether to preview generated message\"
+complete -c $0 -s c -l copy -d \"Whether to copy generated function to clipboard\"
+complete -c $0 -s C -l completion -d \"Generate completion for shell\""
+      ;;
+  esac
+
+  exit
+}
+
 succeded=0
 failed=1
 
 description=
 preview=
 copy=
+shell=
 
 previous_option="$0"
 
@@ -175,6 +212,10 @@ while [ -n "$1" ]; do
       ;;
     --copy|-c)
       copy=true
+      ;;
+    --completion|-C)
+      shell="$argument"
+      generate_completion "$shell"
       ;;
     --)
       shift
